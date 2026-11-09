@@ -1,0 +1,35 @@
+table Region
+	lineageTag: 2a7db57f-8807-41bf-a245-539eaaf3a995
+
+	column Region
+		dataType: string
+		lineageTag: 01e07ff0-9d7d-465d-9289-8d49906beb24
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Region ID'
+		dataType: string
+		lineageTag: 68d0149f-d58c-4b6e-b8f9-18ab3606c0e3
+		summarizeBy: none
+		sourceColumn: Region ID
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Region = m
+		mode: import
+		source =
+				let
+				  Source = Excel.Workbook(File.Contents("C:\Data\BikeX\regions.xlsx"), null, true),
+				  #"Navigation 1" = Source{[Item = "Region", Kind = "Sheet"]}[Data],
+				  #"Promoted headers" = Table.PromoteHeaders(#"Navigation 1", [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"Region", type text}, {"Region ID", Int64.Type}}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Changed column type",{{"Region ID", type text}})
+				in
+				  #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

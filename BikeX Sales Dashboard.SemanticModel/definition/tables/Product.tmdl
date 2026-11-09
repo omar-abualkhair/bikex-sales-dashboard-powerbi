@@ -1,0 +1,35 @@
+table Product
+	lineageTag: 35f9a726-7159-4dbd-8901-3099b9d4a60a
+
+	column ProductID
+		dataType: string
+		lineageTag: e242442f-e089-4daf-8975-d927c1e2fc11
+		summarizeBy: none
+		sourceColumn: ProductID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Product
+		dataType: string
+		lineageTag: 863719e9-3fa0-4ad1-b78c-baffc536fd0f
+		summarizeBy: none
+		sourceColumn: Product
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Product = m
+		mode: import
+		source =
+				let
+				  Source = Excel.Workbook(File.Contents("C:\Data\BikeX\Product.xlsx"), null, true),
+				  #"Navigation 1" = Source{[Item = "Product", Kind = "Sheet"]}[Data],
+				  #"Changed column type" = Table.TransformColumnTypes(#"Navigation 1", {{"Column1", type text}, {"Column2", type text}}),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed column type", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"ProductID", type text}, {"Product", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

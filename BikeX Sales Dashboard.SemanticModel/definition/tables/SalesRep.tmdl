@@ -1,0 +1,127 @@
+table SalesRep
+	lineageTag: 2ba93af8-b3fe-40cf-a657-70dfd59ccecc
+
+	column SalesRepID
+		dataType: int64
+		formatString: 0
+		lineageTag: 292032e0-736c-4dd6-9e22-d79762213848
+		summarizeBy: none
+		sourceColumn: SalesRepID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Full name'
+		dataType: string
+		lineageTag: bec66e60-1002-4b6e-aab2-2ec8ad23ebb9
+		summarizeBy: none
+		sourceColumn: Full name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Date of Birth'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 118ee9bd-0565-4447-a04f-3e1ffb64fb45
+		summarizeBy: none
+		sourceColumn: Date of Birth
+
+		variation Variation
+			isDefault
+			relationship: fc51efa8-8e34-4027-93ba-c94d6fc3748f
+			defaultHierarchy: LocalDateTable_8089dd18-1d12-4c37-958e-0999f68e4359.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Hiring Date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 0fce18f6-1e67-4042-aa92-33c63dddae7a
+		summarizeBy: none
+		sourceColumn: Hiring Date
+
+		variation Variation
+			isDefault
+			relationship: f26613b4-5725-42e6-b0b4-0f2ce1ff1876
+			defaultHierarchy: LocalDateTable_3ddff9f8-1775-4553-99c0-8e25129bf36e.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Band
+		dataType: string
+		lineageTag: 6f34025e-13bc-4305-8f68-092d83eafcc6
+		summarizeBy: none
+		sourceColumn: Band
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Marital Status'
+		dataType: string
+		lineageTag: 1541a655-7458-4d41-9a38-5ad2f68ee68f
+		summarizeBy: none
+		sourceColumn: Marital Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column Age
+		dataType: int64
+		formatString: 0
+		lineageTag: cd72fe92-54fe-4cae-a2a1-cfd21fe58159
+		summarizeBy: sum
+		sourceColumn: Age
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Age Range'
+		dataType: string
+		lineageTag: 843c4e73-1fe6-404d-a88d-6ef7df4f7b7c
+		summarizeBy: none
+		sourceColumn: Age Range
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year from Order year'
+		dataType: int64
+		formatString: 0
+		lineageTag: 7574fdde-832b-4eac-ad81-684ba9aecb46
+		summarizeBy: sum
+		sourceColumn: Year from Order year
+
+		annotation SummarizationSetBy = Automatic
+
+	partition SalesRep = m
+		mode: import
+		source =
+				let
+				  Source = Excel.Workbook(File.Contents("C:\Data\BikeX\emp info.xlsx"), null, true),
+				  #"Navigation 1" = Source{[Item = "SalesRep", Kind = "Sheet"]}[Data],
+				  #"Promoted headers" = Table.PromoteHeaders(#"Navigation 1", [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"SalesRepID", Int64.Type}, {"first Name", type text}, {"Last Name", type text}, {"Date of Birth", type date}, {"Hiring Date", type date}, {"Band", type text}, {"Marital Status", type text}}),
+				    #"Duplicated Column" = Table.DuplicateColumn(#"Changed column type", "Date of Birth", "Date of Birth - Copy"),
+				    #"Calculated Age" = Table.TransformColumns(#"Duplicated Column",{{"Date of Birth - Copy", each Date.From(DateTime.LocalNow()) - _, type duration}}),
+				    #"Calculated Total Years" = Table.TransformColumns(#"Calculated Age",{{"Date of Birth - Copy", each Duration.TotalDays(_) / 365, type number}}),
+				    #"Rounded Down" = Table.TransformColumns(#"Calculated Total Years",{{"Date of Birth - Copy", Number.RoundDown, Int64.Type}}),
+				    #"Inserted Merged Column" = Table.AddColumn(#"Rounded Down", "Merged", each Text.Combine({[first Name], [Last Name]}, " "), type text),
+				    #"Renamed Columns" = Table.RenameColumns(#"Inserted Merged Column",{{"Merged", "Full name"}}),
+				    #"Reordered Columns" = Table.ReorderColumns(#"Renamed Columns",{"SalesRepID", "first Name", "Last Name", "Full name", "Date of Birth", "Hiring Date", "Band", "Marital Status", "Date of Birth - Copy"}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Reordered Columns",{"first Name", "Last Name"}),
+				    #"Trimmed Text" = Table.TransformColumns(#"Removed Columns",{{"Full name", Text.Trim, type text}}),
+				    #"Capitalized Each Word" = Table.TransformColumns(#"Trimmed Text",{{"Full name", Text.Proper, type text}}),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Capitalized Each Word",{{"Date of Birth - Copy", "Age"}}),
+				    #"Added Conditional Column" = Table.AddColumn(#"Renamed Columns1", "Custom", each if [Age] <= 40 then "30:39" else if [Age] <= 50 then "40:49" else if [Age] <= 60 then "50:59" else "60:69"),
+				    #"Renamed Columns2" = Table.RenameColumns(#"Added Conditional Column",{{"Custom", "Age Range"}}),
+				    #"Duplicated Column1" = Table.DuplicateColumn(#"Renamed Columns2", "Hiring Date", "Hiring Date - Copy"),
+				    #"Calculated Age1" = Table.TransformColumns(#"Duplicated Column1",{{"Hiring Date - Copy", each Date.From(DateTime.LocalNow()) - _, type duration}}),
+				    #"Calculated Total Years1" = Table.TransformColumns(#"Calculated Age1",{{"Hiring Date - Copy", each Duration.TotalDays(_) / 365, type number}}),
+				    #"Rounded Down1" = Table.TransformColumns(#"Calculated Total Years1",{{"Hiring Date - Copy", Number.RoundDown, Int64.Type}}),
+				    #"Renamed Columns3" = Table.RenameColumns(#"Rounded Down1",{{"Hiring Date - Copy", "Year from Order year"}})
+				in
+				    #"Renamed Columns3"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

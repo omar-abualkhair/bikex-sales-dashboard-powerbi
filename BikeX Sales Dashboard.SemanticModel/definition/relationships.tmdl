@@ -1,0 +1,40 @@
+relationship fc51efa8-8e34-4027-93ba-c94d6fc3748f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: SalesRep.'Date of Birth'
+	toColumn: LocalDateTable_8089dd18-1d12-4c37-958e-0999f68e4359.Date
+
+relationship f26613b4-5725-42e6-b0b4-0f2ce1ff1876
+	joinOnDateBehavior: datePartOnly
+	fromColumn: SalesRep.'Hiring Date'
+	toColumn: LocalDateTable_3ddff9f8-1775-4553-99c0-8e25129bf36e.Date
+
+relationship d048c5fc-685b-4ea4-b8b1-2bbddfecc0e3
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Over all'.'Order date'
+	toColumn: LocalDateTable_1f9bd3bc-8ecc-4348-84ea-07d91b7f4184.Date
+
+relationship AutoDetected_e652f4f4-ac7f-485f-a196-635416740a2b
+	fromColumn: 'Over all'.SalesRepID
+	toColumn: SalesRep.SalesRepID
+
+relationship AutoDetected_53a8947a-8572-4820-a4b9-055ebb1c5ff5
+	crossFilteringBehavior: bothDirections
+	fromColumn: 'Product -prices'.ProductID
+	toColumn: Product.ProductID
+
+relationship AutoDetected_ac9fd438-d306-420d-97cf-f0f0e6aa73d0
+	fromColumn: 'Over all'.'Product ID'
+	toColumn: Product.ProductID
+
+relationship AutoDetected_893f6873-33c3-4890-95d0-7e19b3db221d
+	fromColumn: 'Over all'.ChannelID
+	toColumn: Channel.'Channel ID'
+
+relationship AutoDetected_9f08b8fc-7aac-4b5c-a781-dfd408ffdce7
+	fromColumn: 'Over all'.SegmentID
+	toColumn: Segment.'Segment ID'
+
+relationship AutoDetected_ccd62799-c3f7-479a-a553-725031a3cfa4
+	fromColumn: 'Over all'.RegionID
+	toColumn: Region.'Region ID'
+

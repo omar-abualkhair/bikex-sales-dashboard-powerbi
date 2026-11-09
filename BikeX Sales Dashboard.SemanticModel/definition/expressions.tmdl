@@ -1,0 +1,49 @@
+expression 2024 =
+		let
+		  Source = Excel.Workbook(File.Contents("C:\Data\BikeX\sales 2024.xlsx"), null, true),
+		  #"Navigation 1" = Source{[Item = "2024", Kind = "Sheet"]}[Data],
+		  #"Promoted headers" = Table.PromoteHeaders(#"Navigation 1", [PromoteAllScalars = true]),
+		  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"Order ID", Int64.Type}, {"SalesRepID", Int64.Type}, {"Product ID", type text}, {"Order date", type text}, {"ChannelID", Int64.Type}, {"SegmentID", Int64.Type}, {"RegionID", Int64.Type}, {"Quantity", Int64.Type}, {"Discount", type number}}),
+		    #"Changed Type with Locale" = Table.TransformColumnTypes(#"Changed column type", {{"Order date", type date}}, "en-GB"),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Changed Type with Locale",{{"Discount", Percentage.Type}})
+		in
+		    #"Changed Type"
+	lineageTag: cca7db6f-4d3c-4a8e-966e-7ccc14c54f34
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 2023 =
+		let
+		  Source = Excel.Workbook(File.Contents("C:\Data\BikeX\sales 2023.xlsx"), null, true),
+		  #"Navigation 1" = Source{[Item = "2023", Kind = "Sheet"]}[Data],
+		  #"Promoted headers" = Table.PromoteHeaders(#"Navigation 1", [PromoteAllScalars = true]),
+		  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"Order ID", Int64.Type}, {"SalesRepID", Int64.Type}, {"Product ID", type text}, {"order date", type date}, {"ChannelID", Int64.Type}, {"SegmentID", Int64.Type}, {"RegionID", Int64.Type}, {"Quantity", Int64.Type}, {"Discount", type number}}),
+		    #"Changed Type with Locale" = Table.TransformColumnTypes(#"Changed column type", {{"order date", type date}}, "en-GB"),
+		    #"Renamed Columns" = Table.RenameColumns(#"Changed Type with Locale",{{"order date", "Order date"}}),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns",{{"Discount", Percentage.Type}})
+		in
+		    #"Changed Type"
+	lineageTag: 9c09449f-6cfa-4906-919c-73fee6fa028a
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 2022 =
+		let
+		  Source = Excel.Workbook(File.Contents("C:\Data\BikeX\sales 2022.xlsx"), null, true),
+		    #"2022_Sheet" = Source{[Item="2022",Kind="Sheet"]}[Data],
+		    #"Promoted Headers" = Table.PromoteHeaders(#"2022_Sheet", [PromoteAllScalars=true]),
+		    #"Changed column type" = Table.TransformColumnTypes(#"Promoted Headers", {{"Order ID", Int64.Type}, {"SalesRepID", Int64.Type}, {"Product ID", type text}, {"order date", type date}, {"ChannelID", Int64.Type}, {"SegmentID", Int64.Type}, {"RegionID", Int64.Type}, {"Quantity", Int64.Type}, {"Discount", type number}}),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Changed column type",{{"Discount", Percentage.Type}}),
+		    #"Renamed Columns" = Table.RenameColumns(#"Changed Type",{{"order date", "Order date"}})
+		in
+		    #"Renamed Columns"
+	lineageTag: 66a11732-c5cc-4eff-baa0-6ae43ea83446
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

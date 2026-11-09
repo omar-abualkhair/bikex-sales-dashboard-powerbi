@@ -1,0 +1,152 @@
+table 'Over all'
+	lineageTag: 574fa8e5-552a-44b1-b9ac-5edb1ea9eff2
+
+	measure 'Average Order Value' = DIVIDE(SUM('Over all'[Revenue]), DISTINCTCOUNT('Over all'[Order ID]))
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 7e8af5a6-d4af-4ce8-9d54-83658ca76706
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column 'Order ID'
+		dataType: int64
+		formatString: 0
+		lineageTag: 8f3f5405-5cd4-4c10-9f8f-9b89d1f94d58
+		summarizeBy: count
+		sourceColumn: Order ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column SalesRepID
+		dataType: int64
+		formatString: 0
+		lineageTag: 181e5d49-ccd5-48ca-938a-b4784d2f4263
+		summarizeBy: none
+		sourceColumn: SalesRepID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Product ID'
+		dataType: string
+		lineageTag: 690e6647-d79a-4768-9568-106d1757e356
+		summarizeBy: none
+		sourceColumn: Product ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Order date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 66e3d6bf-d7bb-446a-adb8-867cc40af2fb
+		summarizeBy: none
+		sourceColumn: Order date
+
+		variation Variation
+			isDefault
+			relationship: d048c5fc-685b-4ea4-b8b1-2bbddfecc0e3
+			defaultHierarchy: LocalDateTable_1f9bd3bc-8ecc-4348-84ea-07d91b7f4184.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column ChannelID
+		dataType: string
+		lineageTag: a35d5206-773f-4f1c-9490-7afad747e033
+		summarizeBy: none
+		sourceColumn: ChannelID
+
+		annotation SummarizationSetBy = Automatic
+
+	column SegmentID
+		dataType: string
+		lineageTag: 06f95b3a-e347-446c-8495-7870867045b5
+		summarizeBy: none
+		sourceColumn: SegmentID
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegionID
+		dataType: string
+		lineageTag: 36725ab4-b58e-4d19-9459-bc58047af442
+		summarizeBy: none
+		sourceColumn: RegionID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: 9e7f78ea-985c-4474-a54e-851d7ae61d2d
+		summarizeBy: sum
+		sourceColumn: Quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column Discount
+		dataType: double
+		formatString: 0.00
+		lineageTag: b65175cc-a84f-4db3-96a8-2f7eff1f81bb
+		summarizeBy: sum
+		sourceColumn: Discount
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: bb1a3eda-1930-4900-9c51-ccd0f5ffdcb0
+		summarizeBy: sum
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column Price
+		dataType: int64
+		formatString: 0
+		lineageTag: 2873ef34-59f8-4210-bd80-a490120175b0
+		summarizeBy: sum
+		sourceColumn: Price
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Total price'
+		dataType: int64
+		formatString: 0
+		lineageTag: d5c05a87-e830-4407-92fb-6e25eb5a15a7
+		summarizeBy: sum
+		sourceColumn: Total price
+
+		annotation SummarizationSetBy = Automatic
+
+	column Revenue
+		dataType: double
+		lineageTag: 60ce5161-7dfa-4d15-90cf-5b2aa8e3ee93
+		summarizeBy: sum
+		sourceColumn: Revenue
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'Over all' = m
+		mode: import
+		source =
+				let
+				    Source = Table.Combine({#"2022", #"2023", #"2024"}),
+				    #"Duplicated Column" = Table.DuplicateColumn(Source, "Order date", "Order date - Copy"),
+				    #"Renamed Columns" = Table.RenameColumns(#"Duplicated Column",{{"Order date - Copy", "Year"}}),
+				    #"Extracted Year" = Table.TransformColumns(#"Renamed Columns",{{"Year", Date.Year, Int64.Type}}),
+				    #"Merged Queries" = Table.NestedJoin(#"Extracted Year", {"Year", "Product ID"}, #"Product -prices", {"year", "ProductID"}, "Product -prices", JoinKind.LeftOuter),
+				    #"Expanded Product -prices" = Table.ExpandTableColumn(#"Merged Queries", "Product -prices", {"Price"}, {"Price"}),
+				    #"Added Custom" = Table.AddColumn(#"Expanded Product -prices", "Total price", each [Price]*[Quantity]),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Added Custom",{{"Total price", Int64.Type}}),
+				    #"Added Custom1" = Table.AddColumn(#"Changed Type1", "Revenue ", each [Total price]*(1-[Discount])),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Added Custom1",{{"Revenue ", "Revenue"}}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns1",{{"Revenue", type number}, {"RegionID", type text}, {"SegmentID", type text}, {"ChannelID", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

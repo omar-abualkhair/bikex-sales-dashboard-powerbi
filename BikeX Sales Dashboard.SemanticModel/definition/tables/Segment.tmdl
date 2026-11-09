@@ -1,0 +1,35 @@
+table Segment
+	lineageTag: 964806bf-da31-4bb4-bc1b-f60488bc74d3
+
+	column Segment
+		dataType: string
+		lineageTag: b2483668-c6d3-4458-954d-b150e0b07c6c
+		summarizeBy: none
+		sourceColumn: Segment
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Segment ID'
+		dataType: int64
+		formatString: 0
+		lineageTag: fa2c2552-df86-4f0c-be1a-27165959c59f
+		summarizeBy: none
+		sourceColumn: Segment ID
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Segment = m
+		mode: import
+		source =
+				let
+				  Source = Excel.Workbook(File.Contents("C:\Data\BikeX\channels & segmant.xlsx"), null, true),
+				  #"Navigation 1" = Source{[Item = "Segment", Kind = "Sheet"]}[Data],
+				  #"Promoted headers" = Table.PromoteHeaders(#"Navigation 1", [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"Segment", type text}, {"Segment ID", Int64.Type}})
+				in
+				  #"Changed column type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,29 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["2022","2023","2024","Product","Product -prices","Region","Channel","Segment","SalesRep","Over all"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table DateTableTemplate_fa9e47a7-b001-4460-8abc-24394ff60757
+ref table Product
+ref table 'Product -prices'
+ref table Region
+ref table Channel
+ref table Segment
+ref table SalesRep
+ref table LocalDateTable_8089dd18-1d12-4c37-958e-0999f68e4359
+ref table LocalDateTable_3ddff9f8-1775-4553-99c0-8e25129bf36e
+ref table 'Over all'
+ref table LocalDateTable_1f9bd3bc-8ecc-4348-84ea-07d91b7f4184
+
+ref cultureInfo en-US
+

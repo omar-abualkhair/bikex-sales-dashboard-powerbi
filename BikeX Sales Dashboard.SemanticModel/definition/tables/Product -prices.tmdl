@@ -1,0 +1,60 @@
+table 'Product -prices'
+	lineageTag: a2ebaf4c-fe2c-481e-97a7-ea33051f3bb5
+
+	column ProductID
+		dataType: string
+		lineageTag: 9ffe858a-e042-46ce-91ef-2166a357c17b
+		summarizeBy: none
+		sourceColumn: ProductID
+
+		annotation SummarizationSetBy = Automatic
+
+	column year
+		dataType: int64
+		formatString: 0
+		lineageTag: 0be1243e-3478-4d71-b60e-263dbd8966da
+		summarizeBy: sum
+		sourceColumn: year
+
+		annotation SummarizationSetBy = Automatic
+
+	column Product
+		dataType: string
+		lineageTag: d7d98131-a582-4ea5-907b-934a2ca96fe2
+		summarizeBy: none
+		sourceColumn: Product
+
+		annotation SummarizationSetBy = Automatic
+
+	column Category
+		dataType: string
+		lineageTag: e4dddd7f-1373-4cc3-82a6-afad611799a0
+		summarizeBy: none
+		sourceColumn: Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column Price
+		dataType: int64
+		formatString: 0
+		lineageTag: 40f2abc2-08dd-494f-9406-66aeae171886
+		summarizeBy: sum
+		sourceColumn: Price
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Product -prices' = m
+		mode: import
+		source =
+				let
+				  Source = Excel.Workbook(File.Contents("C:\Data\BikeX\Product.xlsx"), null, true),
+				  #"Navigation 1" = Source{[Item = "Product -prices", Kind = "Sheet"]}[Data],
+				  #"Promoted headers" = Table.PromoteHeaders(#"Navigation 1", [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"ProductID", type text}, {"year", Int64.Type}, {"Product", type text}, {"Category", type text}, {"Price", Int64.Type}})
+				in
+				    #"Changed column type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

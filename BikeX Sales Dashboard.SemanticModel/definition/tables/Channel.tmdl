@@ -1,0 +1,38 @@
+table Channel
+	lineageTag: 5151f5fb-5688-4469-bd62-4b5f00c360ab
+
+	column Channel
+		dataType: string
+		lineageTag: 629b237c-8dab-4be0-8242-6eaddb017e54
+		summarizeBy: none
+		sourceColumn: Channel
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Channel ID'
+		dataType: string
+		lineageTag: 26cdd863-93fb-474f-a642-008b96c0b2eb
+		summarizeBy: none
+		sourceColumn: Channel ID
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Channel = m
+		mode: import
+		source =
+				let
+				  Source = Excel.Workbook(File.Contents("C:\Data\BikeX\channels & segmant.xlsx"), null, true),
+				  #"Navigation 1" = Source{[Item = "Channel", Kind = "Sheet"]}[Data],
+				  #"Promoted headers" = Table.PromoteHeaders(#"Navigation 1", [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"Channel", type text}, {"Retail", Int64.Type}, {"Whole Sale", Int64.Type}, {"Key Accounts", Int64.Type}, {"Door to Door", Int64.Type}}),
+				    #"Unpivoted Columns" = Table.UnpivotOtherColumns(#"Changed column type", {}, "Attribute", "Value"),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Unpivoted Columns", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Channel", type text}, {"Channel ID", Int64.Type}}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Changed Type",{{"Channel ID", type text}})
+				in
+				  #"Changed Type1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
